@@ -3,9 +3,9 @@ set(eapp_src eapp/split1.cpp eapp/Network1.cpp eapp/reluLayer.cpp eapp/siLuLayer
 set(host_bin mobilevit-split-three-runner)
 set(host_src host/host.cpp host/aes.c)
 
-set(a eapp/string.c)
-set(c eapp/syscall.c)
-set(d eapp/encret.s)
+set(str eapp/string.c)
+set(sys eapp/syscall.c)
+set(enc eapp/encret.s)
 
 set(eapp_bin1 mobilevit-split-three-2)
 set(eapp_src1 eapp/split2.cpp eapp/Network2.cpp eapp/fcLayer.cpp eapp/reluLayer.cpp eapp/siLuLayer.cpp eapp/layers_ds.cpp eapp/batchnormalLayer2.cpp eapp/sigmoidLayer.cpp eapp/convLayer2.cpp eapp/utils2.cpp eapp/layers_bn2.cpp eapp/globalpoolLayer.cpp eapp/crypto.cpp eapp/aes.c)
@@ -24,19 +24,19 @@ endif()
 
 # eapp
 
-add_executable(${eapp_bin} ${eapp_src} ${a} ${c} ${d})
+add_executable(${eapp_bin} ${eapp_src} ${str} ${sys} ${enc})
 target_link_libraries(${eapp_bin} "-static")
 target_include_directories(${eapp_bin}
   PUBLIC ${KEYSTONE_SDK_DIR}/include/app
   PUBLIC ${KEYSTONE_SDK_DIR}/include/edge)
   
-add_executable(${eapp_bin1} ${eapp_src1} ${a} ${c} ${d})
+add_executable(${eapp_bin1} ${eapp_src1} ${str} ${sys} ${enc})
 target_link_libraries(${eapp_bin1} "-static")
 target_include_directories(${eapp_bin1}
   PUBLIC ${KEYSTONE_SDK_DIR}/include/app
   PUBLIC ${KEYSTONE_SDK_DIR}/include/edge)
   
-add_executable(${eapp_bin2} ${eapp_src2} ${a} ${c} ${d})
+add_executable(${eapp_bin2} ${eapp_src2} ${str} ${sys} ${enc})
 target_link_libraries(${eapp_bin2} "-static")
 target_include_directories(${eapp_bin2}
   PUBLIC ${KEYSTONE_SDK_DIR}/include/app
