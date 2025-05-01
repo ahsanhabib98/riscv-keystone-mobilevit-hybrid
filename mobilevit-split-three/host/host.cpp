@@ -269,7 +269,7 @@ int main(int argc, char** argv)
   {
     // Second child process
 	system("python3 /root/pid2/mobilevit.py &");
-	std::this_thread::sleep_for(std::chrono::seconds(100));
+	// std::this_thread::sleep_for(std::chrono::seconds(100));
 
 	std::string pipe1 = "/tmp/pipe1";  
     std::string pipe2 = "/tmp/pipe2";
