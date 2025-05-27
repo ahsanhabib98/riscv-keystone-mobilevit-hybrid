@@ -193,52 +193,28 @@ def print_time(message):
     now = datetime.now()
     ts  = now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     print(f"Time: {ts} : {message}")
-
-# ============================================================
-# Named-pipe setup
-# ============================================================
-PIPE_IN  = '/tmp/pipe1'  # from C++
-PIPE_OUT = '/tmp/pipe2'  # back to C++
-
-for p in (PIPE_IN, PIPE_OUT):
-    try:
-        os.mkfifo(p, 0o777)
-    except OSError as oe:
-        if oe.errno != errno.EEXIST:
-            raise
-
+    
 # ============================================================
 # Main loop
 # ============================================================
 def main():
-    
-    # Open pipes
-    with open(PIPE_IN,  'rb') as read_pipe, \
-         open(PIPE_OUT, 'wb') as write_pipe:
 
-        # Model
-        model = MobileViTMiddle()
+    INPUT_FILE  = '/tmp/input.bin'
+    OUTPUT_FILE = '/tmp/output.bin'
 
-        input_size = 1 * 16 * 56 * 112  # 100352 floats
+    # 1) Read the raw floats
+    data = np.fromfile(INPUT_FILE, dtype=np.float32)
+    data = data.reshape(1, 16, 56, 112)
 
-        while True:
-            # Read the exact byte count
-            data = read_pipe.read(input_size * 4)
-            if not data:
-                break
+    # 2) Run the model
+    print('MobileViTMiddle')
+    model = MobileViTMiddle()       # initialize (or load weights)
+    x = torch.from_numpy(data)
+    out = model(x)                  # shape: (1, 100352)
 
-            # to numpy & reshape
-            arr = np.frombuffer(data, dtype=np.float32)
-            arr = arr.reshape(1, 16, 56, 112)
-
-            # to torch & forward
-            x = torch.from_numpy(arr.copy())
-            out = model(x)  # (1,100352)
-
-            # flatten & send back
-            out_np = out.squeeze(0).detach().numpy().astype(np.float32)
-            write_pipe.write(out_np.tobytes())
-            write_pipe.flush()
+    # 3) Write back the result as raw floats
+    out_np = out.squeeze(0).detach().numpy().astype(np.float32).ravel()
+    out_np.tofile(OUTPUT_FILE)
 
 if __name__ == '__main__':
     main()

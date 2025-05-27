@@ -267,35 +267,37 @@ int main(int argc, char** argv)
   pid2 = fork();
   if(pid2 == 0)
   {
-    // Second child process
-	system("python3 /root/pid2/mobilevit.py &");
-	// std::this_thread::sleep_for(std::chrono::seconds(100));
+	const char* inputFile  = "/tmp/input.bin";   
+    const char* outputFile = "/tmp/output.bin";  
 
-	std::string pipe1 = "/tmp/pipe1";  
-    std::string pipe2 = "/tmp/pipe2";
+    // 0) Prepare data
+    size_t inputSize = 100352;
+    float* inputData = get_host_string_wrapper12(inputSize);
 
-	std::ofstream write_pipe(pipe1, std::ios::binary);
-    std::ifstream read_pipe(pipe2, std::ios::binary);
+    // 1) Remove any  output
+    std::remove(outputFile);
 
-	size_t inputSize = 100352;
-	float* inputData = get_host_string_wrapper12(inputSize);
+    // 2) Write float array out as raw binary
+	std::ofstream ofs(inputFile, std::ios::binary);
+	ofs.write(reinterpret_cast<const char*>(inputData), inputSize * sizeof(float));
 
-	write_pipe.write(reinterpret_cast<const char*>(inputData), inputSize * sizeof(float));
-    write_pipe.flush();
+    // 3) Call Python and BLOCK until it fully completes
+    std::system("python3 /root/pid2/mobilevit.py");
 
-	float* outputData = new float[inputSize];
-	read_pipe.read(reinterpret_cast<char*>(outputData), inputSize * sizeof(float));
+    // 4) Read back the processed floats
+    float* outputData = new float[inputSize];
+	std::ifstream ifs(outputFile, std::ios::binary);
+	ifs.read(reinterpret_cast<char*>(outputData), inputSize * sizeof(float));
 
-	print_time("Communication 2 Start");
-	print_string_wrapper23(outputData);
-	print_time("Communication 2 End");
+    print_time("Communication 2 Start");
+    print_string_wrapper23(outputData);
+    print_time("Communication 2 End");
 
-	free(inputData);
-	free(outputData);
-    write_pipe.close();
-    read_pipe.close();
+    // 6) Cleanup
+    delete[] inputData;
+    delete[] outputData;
 
-    return 0; // Child process should exit after running the process
+    return 0;
   }
 
   pid3 = fork();
