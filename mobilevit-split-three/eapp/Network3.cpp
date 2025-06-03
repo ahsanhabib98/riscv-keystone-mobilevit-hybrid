@@ -86,10 +86,10 @@ Network::Network()
 	ocall_print_buffer("Initializing Network 3...\n");
 
 	// Fully Connected Layer
-	m_Fclayer7 = new FcLayer(7, 256, 12);  // Reduced from 1024 to 720
+	m_Fclayer7 = new FcLayer(7, 256, 10);  // Reduced from 1024 to 720
 	
 	// Sigmoid Layer
-	m_Sigmoidlayer8 = new SigmoidLayer(12);
+	// m_Sigmoidlayer8 = new SigmoidLayer(12);
 	
 	m_vcClass.push_back("Indoor");
 	m_vcClass.push_back("Human Photo");
@@ -101,8 +101,8 @@ Network::Network()
 	m_vcClass.push_back("Sunset");
 	m_vcClass.push_back("Blue Sky");
 	m_vcClass.push_back("Snow");
-	m_vcClass.push_back("Night");
-	m_vcClass.push_back("Text");
+	// m_vcClass.push_back("Night");
+	// m_vcClass.push_back("Text");
 	
 	ocall_print_buffer("Initializing Network 3 Done...\n");
 	
@@ -113,7 +113,7 @@ Network::Network()
 Network::~Network()
 {
     delete m_Fclayer7;
-    delete m_Sigmoidlayer8;
+    // delete m_Sigmoidlayer8;
 }
 
 
@@ -123,15 +123,15 @@ float* Network::Forward(float* input)
 	
 	ocall_print_buffer("Getting output...\n");
 	
-  m_Fclayer7->forward(input);
+  	m_Fclayer7->forward(input);
 
-  m_Sigmoidlayer8->forward(m_Fclayer7->GetOutput());
+//   m_Sigmoidlayer8->forward(m_Fclayer7->GetOutput());
 
-  float *pfOutput = m_Sigmoidlayer8->GetOutput();
+  	float *pfOutput = m_Fclayer7->GetOutput();
 	vector <int> argmax;
 	vector <float> Max;
 
-  int nOutputSize = m_Fclayer7->GetOutputSize();
+  	int nOutputSize = m_Fclayer7->GetOutputSize();
 	for (int i = 0; i<nOutputSize; i++)
 	{
 		// if (pfOutput[i] > 0.5)

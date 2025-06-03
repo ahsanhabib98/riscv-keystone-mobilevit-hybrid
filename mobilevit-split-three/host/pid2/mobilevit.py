@@ -167,7 +167,7 @@ class MobileViTBlock(nn.Module):
         return x
 
 # ============================================================
-# MobileViT Middle Layers (output flat 100352-vector)
+# MobileViT Middle Layers (now with pooling but still 100352 floats)
 # ============================================================
 class MobileViTMiddle(nn.Module):
     def __init__(self):
@@ -175,15 +175,19 @@ class MobileViTMiddle(nn.Module):
         self.mv2  = MV2Block(inp=16, oup=16, stride=1, expansion=2)
         self.mvit = MobileViTBlock(dim=64, depth=1, channel=16,
                                    kernel_size=3, patch_size=(2,2), mlp_dim=128)
-        # Output 16 channels so 16*56*112 = 100352
-        self.conv2 = conv_1x1_bn(16, 16)
+        # Change conv2 to output 64 channels (instead of 16).
+        # After pooling, (64 × 28 × 56 = 100352).
+        self.conv2 = conv_1x1_bn(16, 64)
+        # Added 2×2 avg‐pool
+        self.pool = nn.AvgPool2d(kernel_size=2, stride=2)
 
     def forward(self, x):
         x = self.mv2(x)               # → (B,16,56,112)
         x = self.mvit(x)              # → (B,16,56,112)
-        x = self.conv2(x)             # → (B,16,56,112)
+        x = self.conv2(x)             # → (B,64,56,112)
+        x = self.pool(x)              # → (B,64,28,56)
         B, C, H, W = x.shape
-        x = x.view(B, -1)             # → (B,100352)
+        x = x.view(B, -1)             # → (B, 64*28*56 = 100352)
         return x
 
 # ============================================================
