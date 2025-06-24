@@ -271,7 +271,7 @@ int main(int argc, char** argv)
     const char* outputFile = "/tmp/output.bin";  
 
     // 0) Prepare data
-    size_t inputSize = 100352;
+    size_t inputSize = 262144;
     float* inputData = get_host_string_wrapper12(inputSize);
 
     // 1) Remove any  output
@@ -359,7 +359,7 @@ void send_input_data() {
     std::cout << "Reading input data" << std::endl;
 
     // Construct the filename for the image
-    std::string filename = "2.png";
+    std::string filename = "1.png";
 
     // Variables to hold image width, height, and number of channels
     int width, height, channels;

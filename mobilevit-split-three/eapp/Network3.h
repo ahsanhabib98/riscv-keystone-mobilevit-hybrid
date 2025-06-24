@@ -29,7 +29,7 @@ private:
     //float m_dAccuracy;
     //int m_nPrediction;
     vector <const char *> m_vcClass;
-    const char *m_cClass[10];
+    const char *m_cClass[1000];
 
     FcLayer *m_Fclayer7;
 

@@ -8,10 +8,10 @@ set(sys eapp/syscall.c)
 set(enc eapp/encret.s)
 
 set(eapp_bin1 mobilevit-split-three-2)
-set(eapp_src1 eapp/split2.cpp eapp/Network2.cpp eapp/fcLayer.cpp eapp/reluLayer.cpp eapp/siLuLayer.cpp eapp/layers_ds.cpp eapp/batchnormalLayer2.cpp eapp/sigmoidLayer.cpp eapp/convLayer2.cpp eapp/utils2.cpp eapp/layers_bn2.cpp eapp/globalpoolLayer.cpp eapp/crypto.cpp eapp/aes.c)
+set(eapp_src1 eapp/split2.cpp eapp/Network2.cpp eapp/fcLayer.cpp eapp/fcWeights.cpp eapp/reluLayer.cpp eapp/siLuLayer.cpp eapp/layers_ds.cpp eapp/batchnormalLayer2.cpp eapp/sigmoidLayer.cpp eapp/convLayer2.cpp eapp/utils2.cpp eapp/layers_bn2.cpp eapp/globalpoolLayer.cpp eapp/crypto.cpp eapp/aes.c)
 
 set(eapp_bin2 mobilevit-split-three-3)
-set(eapp_src2 eapp/split3.cpp eapp/Network3.cpp eapp/fcLayer.cpp eapp/reluLayer.cpp eapp/siLuLayer.cpp eapp/layers_ds.cpp eapp/batchnormalLayer2.cpp eapp/sigmoidLayer.cpp eapp/convLayer2.cpp eapp/utils3.cpp eapp/layers_bn2.cpp eapp/globalpoolLayer.cpp eapp/crypto.cpp eapp/aes.c)
+set(eapp_src2 eapp/split3.cpp eapp/Network3.cpp eapp/fcLayer.cpp eapp/fcWeights.cpp eapp/reluLayer.cpp eapp/siLuLayer.cpp eapp/layers_ds.cpp eapp/batchnormalLayer2.cpp eapp/sigmoidLayer.cpp eapp/convLayer2.cpp eapp/utils3.cpp eapp/layers_bn2.cpp eapp/globalpoolLayer.cpp eapp/crypto.cpp eapp/aes.c)
 
 set(package_name "mobilevit-split-three.ke")
 set(package_script "./mobilevit-split-three-runner mobilevit-split-three mobilevit-split-three-2 mobilevit-split-three-3 eyrie-rt --sm-bin fw_jump.bin")
