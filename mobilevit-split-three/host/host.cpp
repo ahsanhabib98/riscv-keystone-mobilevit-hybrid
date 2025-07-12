@@ -271,7 +271,7 @@ int main(int argc, char** argv)
     const char* outputFile = "/tmp/output.bin";  
 
     // 0) Prepare data
-    size_t inputSize = 262144;
+    size_t inputSize = 200704;
     float* inputData = get_host_string_wrapper12(inputSize);
 
     // 1) Remove any  output

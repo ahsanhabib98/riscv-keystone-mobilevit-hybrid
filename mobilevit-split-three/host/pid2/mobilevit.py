@@ -1,5 +1,7 @@
 import torch
+import numpy as np
 import torch.nn as nn
+import torch.nn.functional as F
 
 from einops import rearrange
 
@@ -146,16 +148,28 @@ class MobileViTBlock(nn.Module):
     
     def forward(self, x):
         y = x.clone()
+        h0, w0 = x.shape[-2:]
 
         # Local representations
         x = self.conv1(x)
         x = self.conv2(x)
         
         # Global representations
-        _, _, h, w = x.shape
-        x = rearrange(x, 'b d (h ph) (w pw) -> b (ph pw) (h w) d', ph=self.ph, pw=self.pw)
+        b, d, h, w = x.shape
+        ph, pw = self.ph, self.pw
+        pad_h = (ph - (h % ph)) % ph
+        pad_w = (pw - (w % pw)) % pw
+        x = F.pad(x, (0, pad_w, 0, pad_h))
+
+        x = rearrange(x, 'b d (h p1) (w p2) -> b (p1 p2) (h w) d', p1=ph, p2=pw)
         x = self.transformer(x)
-        x = rearrange(x, 'b (ph pw) (h w) d -> b d (h ph) (w pw)', h=h//self.ph, w=w//self.pw, ph=self.ph, pw=self.pw)
+
+        h_new = (h + pad_h) // ph
+        w_new = (w + pad_w) // pw
+        x = rearrange(x, 'b (p1 p2) (h w) d -> b d (h p1) (w p2)', h=h_new, w=w_new, p1=ph, p2=pw)
+
+        # crop back to original spatial size
+        x = x[..., :h0, :w0]
 
         # Fusion
         x = self.conv3(x)
@@ -222,12 +236,14 @@ def main():
     OUTPUT_FILE = '/tmp/output.bin'
 
     data = np.fromfile(INPUT_FILE, dtype=np.float32)
-    data = data.reshape(1, 16, 128, 128)
+    data = data.reshape(1, 16, 112, 112)
 
     print('MobileViT')
+    dims = [64, 80, 96]
     channels = [16, 16, 24, 24, 48, 48, 64, 64, 80, 80, 320]
-    model = MobileViT((256, 256), dims, channels, num_classes=1000, expansion=2)
-    model.load_state_dict(torch.load("mobilevit_weights.txt"))       
+    model = MobileViT((224, 224), dims, channels, num_classes=1000, expansion=2)
+    state_dict = torch.load("/root/pid2/mobilevit_weights.pth", map_location="cpu", weights_only=False)
+    model.load_state_dict(state_dict, strict=False)       
     x = torch.from_numpy(data)
     out = model(x)                  
 
