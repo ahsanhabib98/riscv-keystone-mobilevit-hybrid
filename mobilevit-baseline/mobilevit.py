@@ -1,3 +1,4 @@
+import time
 import torch
 import numpy as np
 import torch.nn as nn
@@ -232,20 +233,28 @@ class MobileViT(nn.Module):
 
 def main():
 
-    print('MobileViT Start')                                                                                   
-    start = time.perf_counter()                                                                                
+    init_start = time.perf_counter()
+
     data   = torch.randn(2, 3, 224, 224)                                                                       
                                                                                                                
     dims = [64, 80, 96]                                                                                        
     channels = [16, 16, 24, 24, 48, 48, 64, 64, 80, 80, 320]                                                   
     model = MobileViT((224, 224), dims, channels, num_classes=1000, expansion=2)                               
     state_dict = torch.load("/root/pid2/mobilevit_weights.pth", map_location="cpu", weights_only=False)        
-    model.load_state_dict(state_dict, strict=False)                                                            
-    out = model(data)                                                                                          
+    model.load_state_dict(state_dict, strict=False)
+
+    init_end = time.perf_counter()
+    init_time = init_end - init_start
+    print(f"Model init time: {init_time:.6f} seconds")
+
+    infer_start = time.perf_counter()
+    out = model(data)
+    infer_end = time.perf_counter()
+    infer_time = infer_end - infer_start
+    print(f"Model inference time:{infer_time:.6f} seconds")                                                                                          
                                                                                                                
-    end   = time.perf_counter()                                                                                
-    print('MobileViT End')                                                                                     
-    print(f"Execution time: {end - start:.6f} seconds")
+    total_time = infer_end - init_start
+    print(f"Total execution time:{total_time:.6f} seconds")
 
 if __name__ == '__main__':
     main()

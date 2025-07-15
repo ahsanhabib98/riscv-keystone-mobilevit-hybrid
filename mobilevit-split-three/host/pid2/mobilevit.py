@@ -1,4 +1,5 @@
 import torch
+import datetime
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
@@ -230,6 +231,11 @@ class MobileViT(nn.Module):
         # x = self.fc(x)
         return x
 
+def print_time(msg: str):
+    now = datetime.datetime.now()
+    ts = now.strftime("%Y-%m-%d %H:%M:%S") + f".{now.microsecond//1000:03d}"
+    print(f"Time: {ts} : {msg}")
+
 def main():
 
     INPUT_FILE  = '/tmp/input.bin'
@@ -238,14 +244,23 @@ def main():
     data = np.fromfile(INPUT_FILE, dtype=np.float32)
     data = data.reshape(1, 16, 112, 112)
 
-    print('MobileViT')
+    # --- NETWORK INIT ---
+    print_time("Network Init 2 Start")
+    
     dims = [64, 80, 96]
     channels = [16, 16, 24, 24, 48, 48, 64, 64, 80, 80, 320]
     model = MobileViT((224, 224), dims, channels, num_classes=1000, expansion=2)
     state_dict = torch.load("/root/pid2/mobilevit_weights.pth", map_location="cpu", weights_only=False)
-    model.load_state_dict(state_dict, strict=False)       
+    model.load_state_dict(state_dict, strict=False)
+
+    print_time("Network Init 2 End")
+
+    print_time("Inference 2 Start")
+
     x = torch.from_numpy(data)
-    out = model(x)                  
+    out = model(x)
+
+    print_time("Inference 2 End")                  
 
     out_np = out.squeeze(0).detach().numpy().astype(np.float32).ravel()
     out_np.tofile(OUTPUT_FILE)
