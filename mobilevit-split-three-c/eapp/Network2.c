@@ -1,10 +1,20 @@
 ﻿/* network2.c */
-#include "network2.h"
+#include "Network2.h"
 #include <string.h>
 #include <stdlib.h>
 #include "edge_call.h"
 #include "syscall.h"
 #include <stdio.h>
+
+#ifndef OCALL_PRINT_STRING_23
+#define OCALL_PRINT_STRING_23 1
+#endif
+
+#ifndef OCALL_PRINT_TIME
+#define OCALL_PRINT_TIME 3
+#endif
+
+#define OCALL_PRINT_BUFFER 6
 
 /* OCall wrappers */
 unsigned long ocall_print_string(char *str) {

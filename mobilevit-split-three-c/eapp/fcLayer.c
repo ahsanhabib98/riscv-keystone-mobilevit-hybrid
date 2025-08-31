@@ -3,9 +3,9 @@
 #include <string.h>
 #include <math.h>
 
-/* External weight/bias arrays provided in fcWeights.h */
-extern float g_fcWeights[];
-extern float g_fcBias[];
+// /* External weight/bias arrays provided in fcWeights.h */
+// extern float g_fcWeights[];
+// extern float g_fcBias[];
 
 /* Internal helper to load weights/bias for a given fileNum */
 static void FcLayer_read_wb(FcLayer* layer, int fileNum) {
@@ -46,6 +46,13 @@ void FcLayer_destroy(FcLayer* layer) {
     free(layer);
 }
 
+static inline float sigmoid_fast(float x) {
+    // 0.5 + 0.5 * x/(1+|x|), no libm needed
+    float ax = x < 0.0f ? -x : x;
+    float y  = x / (1.0f + ax);
+    return 0.5f * y + 0.5f;
+}
+
 void FcLayer_forward(FcLayer* layer, const float *input) {
     for (int i = 0; i < layer->nOutputSize; ++i) {
         float sum = 0.0f;
@@ -58,7 +65,9 @@ void FcLayer_forward(FcLayer* layer, const float *input) {
         if (layer->relu) {
             layer->output[i] = sum > 0.0f ? sum : 0.0f;
         } else {
-            layer->output[i] = 1.0f / (1.0f + expf(-sum));
+            layer->output[i] = layer->relu
+            ? (sum > 0.0f ? sum : 0.0f)
+            : sigmoid_fast(sum); 
         }
     }
 }

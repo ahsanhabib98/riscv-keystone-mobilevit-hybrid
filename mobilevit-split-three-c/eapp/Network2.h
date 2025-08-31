@@ -9,10 +9,10 @@
 #include "globalpoolLayer.h"
 #include "crypto.h"
 
-/* OCall identifiers */
-#define OCALL_PRINT_STRING_23  1
-#define OCALL_PRINT_TIME       3
-#define OCALL_PRINT_BUFFER     6
+// /* OCall identifiers */
+// #define OCALL_PRINT_STRING_23  1
+// #define OCALL_PRINT_TIME       3
+// #define OCALL_PRINT_BUFFER     6
 
 /**
  * Second network structure, composed of multiple depthwise-separable blocks and a global pool.

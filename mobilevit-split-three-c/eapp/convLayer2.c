@@ -80981,6 +80981,7 @@ void ConvLayer_destroy(ConvLayer *layer) {
 }
 
 void ConvLayer_forward(ConvLayer *layer, const float *pfInput) {
+    int group_input = layer->nInputNum / layer->nGroup;
     ConvLayer_add_pad(layer, pfInput);
     for (int g = 0; g < layer->nGroup; ++g) {
         for (int o = 0; o < layer->nOutputGroupNum; ++o) {

@@ -1,7 +1,24 @@
-/* batchnormallayer.c */
 #include "batchnormalLayer.h"
 #include <string.h>
-#include <math.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+/* ---- tiny fast sqrt() so we don't need -lm ----
+   Quake-style fast inverse sqrt + 2 Newton steps. */
+static inline float inv_sqrt_fast(float x) {
+    if (x <= 0.0f) return 0.0f;
+    float xhalf = 0.5f * x;
+    union { float f; uint32_t i; } u = { x };
+    u.i = 0x5f3759df - (u.i >> 1);
+    float y = u.f;
+    y = y * (1.5f - xhalf * y * y);
+    y = y * (1.5f - xhalf * y * y);
+    return y;
+}
+static inline float sqrtf_fast(float x) {
+    if (x <= 0.0f) return 0.0f;
+    return x * inv_sqrt_fast(x);
+}
 
 BatchNormalLayer* BatchNormalLayer_create(int fileNum, int nInputNum, int nInputWidth) {
     BatchNormalLayer* layer = (BatchNormalLayer*)malloc(sizeof(BatchNormalLayer));
@@ -10,7 +27,7 @@ BatchNormalLayer* BatchNormalLayer_create(int fileNum, int nInputNum, int nInput
     layer->nInputNum   = nInputNum;
     layer->nInputWidth = nInputWidth;
     layer->nInputSize  = nInputWidth * nInputWidth;
-    layer->pfOutput    = (float*)malloc(nInputNum * layer->nInputSize * sizeof(float));
+    layer->pfOutput    = (float*)malloc((size_t)nInputNum * layer->nInputSize * sizeof(float));
     layer->pfMean      = NULL;
     layer->pfVar       = NULL;
     layer->pfFiller    = NULL;
@@ -38,11 +55,13 @@ void BatchNormalLayer_forward(BatchNormalLayer* layer, const float *pfInput) {
         float var    = layer->pfVar[i];
         float filler = layer->pfFiller[i];
         float bias   = layer->pfBias[i];
+
+        /* epsilon to avoid div-by-zero */
+        float denom = sqrtf_fast(var + 1e-5f);
+
         for (int j = 0; j < S; j++) {
             int idx = i * S + j;
-            layer->pfOutput[idx] = filler * ((pfInput[idx] - mean)
-                                      / sqrtf(var + 1e-5f))
-                                  + bias;
+            layer->pfOutput[idx] = filler * ((pfInput[idx] - mean) / denom) + bias;
         }
     }
 }
@@ -58,7 +77,6 @@ int BatchNormalLayer_get_output_size(BatchNormalLayer* layer) {
 void BatchNormalLayer_read_param(BatchNormalLayer* layer, int fileNum) {
     int N = layer->nInputNum;
     if (fileNum == 1) {
-        /* Hardcoded params for fileNum=1 */
         static const float mean_vals[] = {
             -0.00208453f,  0.09144061f, -0.13575457f, -0.02694147f,
             -0.02585328f, -0.17367479f,  0.02359269f, -0.15471432f,
@@ -83,15 +101,14 @@ void BatchNormalLayer_read_param(BatchNormalLayer* layer, int fileNum) {
              0.14835852f, -0.04255034f, -0.04444560f, -0.01331975f,
             -0.00516147f,  0.16140933f,  0.37494150f, -0.03662954f
         };
-        
-        /* Allocate and copy */
-        layer->pfMean   = (float*)malloc(N * sizeof(float));
-        layer->pfVar    = (float*)malloc(N * sizeof(float));
-        layer->pfFiller = (float*)malloc(N * sizeof(float));
-        layer->pfBias   = (float*)malloc(N * sizeof(float));
-        memcpy(layer->pfMean,   mean_vals,   N * sizeof(float));
-        memcpy(layer->pfVar,    var_vals,    N * sizeof(float));
-        memcpy(layer->pfFiller, filler_vals, N * sizeof(float));
-        memcpy(layer->pfBias,   bias_vals,   N * sizeof(float));
+
+        layer->pfMean   = (float*)malloc((size_t)N * sizeof(float));
+        layer->pfVar    = (float*)malloc((size_t)N * sizeof(float));
+        layer->pfFiller = (float*)malloc((size_t)N * sizeof(float));
+        layer->pfBias   = (float*)malloc((size_t)N * sizeof(float));
+        memcpy(layer->pfMean,   mean_vals,   (size_t)N * sizeof(float));
+        memcpy(layer->pfVar,    var_vals,    (size_t)N * sizeof(float));
+        memcpy(layer->pfFiller, filler_vals, (size_t)N * sizeof(float));
+        memcpy(layer->pfBias,   bias_vals,   (size_t)N * sizeof(float));
     }
 }

@@ -3,9 +3,9 @@
 #define LAYERS_BN2_H
 
 #include <stdlib.h>
-#include "convlayer.h"
-#include "batchnormallayer2.h"
-#include "relulayer.h"
+#include "convLayer.h"
+#include "batchnormalLayer2.h"
+#include "reluLayer.h"
 
 /**
  * Composite block: Conv -> BatchNorm -> ReLU activation

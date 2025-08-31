@@ -3,9 +3,9 @@
 #define LAYERS_DS_H
 
 #include <stdlib.h>
-#include "convlayer.h"
-#include "batchnormallayer2.h"
-#include "relulayer.h"
+#include "convLayer.h"
+#include "batchnormalLayer2.h"
+#include "reluLayer.h"
 
 /**
  * Depthwise-Separable layer block: Depthwise Conv -> BN -> ReLU -> Pointwise Conv -> BN -> ReLU

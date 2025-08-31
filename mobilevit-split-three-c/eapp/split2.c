@@ -14,18 +14,18 @@
 #define OCALL_PRINT_TIME 3
 
 // OCall wrapper for printing time strings
-unsigned long ocall_print_time(char *msg) {
+unsigned long ocall_print_time2(char *msg) {
     unsigned long retval;
     ocall(OCALL_PRINT_TIME, msg, strlen(msg) + 1, &retval, sizeof(retval));
     return retval;
 }
 
 int main(void) {
-    ocall_print_time("Enclave2 Start");
+    ocall_print_time2("Enclave2 Start");
 
     // Run the enclave's self-test or computation
     test();
 
-    ocall_print_time("Enclave2 End");
+    ocall_print_time2("Enclave2 End");
     return 0;
 }

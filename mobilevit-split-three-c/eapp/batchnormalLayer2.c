@@ -1,5 +1,5 @@
 /* batchnormallayer2.c */
-#include "batchnormallayer2.h"
+#include "batchnormalLayer2.h"
 #include <string.h>
 #include <math.h>
 
@@ -41,9 +41,9 @@ BatchNormalLayer2* BatchNormalLayer2_create(int fileNum, int nInputNum, int nInp
             break;
         }
         case 221: {
-            static const float mean_vals[] = {0.0367131f, 0.164497f, 0f, 0.137678f, 0.0354477f, 0.144457f, 0.142928f, 0.161616f, 0.0536482f, -0.000165627f, 0.143775f, -0.186135f, -0.136449f, 0.103929f, -0.144115f, -0.157977f, 0.00867234f, 0.153289f, 0.0624238f, -0.0878932f, 0f, 0f, 0f, 0.286916f, 0f, -0.000780375f, -0.0143342f, 0f, 0f, -0.0602272f, 0.316931f, 0.224174f};
-            static const float var_vals[]  = {0.0044805f, 0.0290253f, 0f, 0.0381486f, 0.00572432f, 0.0485777f, 0.031026f, 0.0461226f, 0.00638458f, 0.00805371f, 0.0343256f, 0.0595453f, 0.0337398f, 0.0162687f, 0.0270064f, 0.0180175f, 0.00498694f, 0.0064482f, 0.0112026f, 0.0313528f, 0f, 0f, 0f, 0.0189388f, 0f, 0.00947455f, 0.00518141f, 0f, 0f, 0.0174887f, 0.00596978f, 0.0843684f};
-            static const float fill_vals[] = {0.0367131f, 0.164497f, 0f, 0.137678f, 0.0354477f, 0.144457f, 0.142928f, 0.161616f, 0.0536482f, -0.000165627f, 0.143775f, -0.186135f, -0.136449f, 0.103929f, -0.144115f, -0.157977f, 0.00867234f, 0.153289f, 0.0624238f, -0.0878932f, 0f, 0f, 0f, 0.286916f, 0f, -0.000780375f, -0.0143342f, 0f, 0f, -0.0602272f, 0.316931f, 0.224174f};
+            static const float mean_vals[] = {0.0367131f, 0.164497f, 0.0f, 0.137678f, 0.0354477f, 0.144457f, 0.142928f, 0.161616f, 0.0536482f, -0.000165627f, 0.143775f, -0.186135f, -0.136449f, 0.103929f, -0.144115f, -0.157977f, 0.00867234f, 0.153289f, 0.0624238f, -0.0878932f, 0.0f, 0.0f, 0.0f, 0.286916f, 0.0f, -0.000780375f, -0.0143342f, 0.0f, 0.0f, -0.0602272f, 0.316931f, 0.224174f};
+            static const float var_vals[]  = {0.0044805f, 0.0290253f, 0.0f, 0.0381486f, 0.00572432f, 0.0485777f, 0.031026f, 0.0461226f, 0.00638458f, 0.00805371f, 0.0343256f, 0.0595453f, 0.0337398f, 0.0162687f, 0.0270064f, 0.0180175f, 0.00498694f, 0.0064482f, 0.0112026f, 0.0313528f, 0.0f, 0.0f, 0.0f, 0.0189388f, 0.0f, 0.00947455f, 0.00518141f, 0.0f, 0.0f, 0.0174887f, 0.00596978f, 0.0843684f};
+            static const float fill_vals[] = {0.0367131f, 0.164497f, 0.0f, 0.137678f, 0.0354477f, 0.144457f, 0.142928f, 0.161616f, 0.0536482f, -0.000165627f, 0.143775f, -0.186135f, -0.136449f, 0.103929f, -0.144115f, -0.157977f, 0.00867234f, 0.153289f, 0.0624238f, -0.0878932f, 0.0f, 0.0f, 0.0f, 0.286916f, 0.0f, -0.000780375f, -0.0143342f, 0.0f, 0.0f, -0.0602272f, 0.316931f, 0.224174f};
             static const float bias_vals[] = {0.14514f, 0.320544f, -4.87929e-07f, 0.254505f, 0.169595f, 0.284959f, 0.266624f, 0.322021f, 0.207003f, 0.114477f, 0.224183f, -0.15879f, 0.122619f, 0.205459f, 0.772897f, 0.298089f, -0.00352921f, 0.303849f, 0.223388f, 0.278806f, -5.40725e-08f, -1.27164e-07f, -2.3215e-07f, 0.682485f, -1.33662e-07f, 0.0185743f, -0.00708374f, -8.49274e-08f, -2.72967e-09f, 0.453414f, 0.287559f, 0.295205f};
             memcpy(layer->pfMean,   mean_vals,   nInputNum * sizeof(float));
             memcpy(layer->pfVar,    var_vals,    nInputNum * sizeof(float));
@@ -2418,6 +2418,14 @@ void BatchNormalLayer2_destroy(BatchNormalLayer2* layer) {
     free(layer);
 }
 
+static inline float rsqrt_approx(float x) {
+    if (x <= 0.0f) return 0.0f;
+    float y = 1.0f;                 // crude init
+    for (int k = 0; k < 4; ++k)     // 3–4 iters usually enough
+        y = y * (1.5f - 0.5f * x * y * y);
+    return y;
+}
+
 void BatchNormalLayer2_forward(BatchNormalLayer2* layer, const float *pfInput) {
     int N = layer->nInputNum;
     int S = layer->nInputSize;
@@ -2428,7 +2436,7 @@ void BatchNormalLayer2_forward(BatchNormalLayer2* layer, const float *pfInput) {
         float bias   = layer->pfBias[i];
         for (int j = 0; j < S; j++) {
             int idx = i * S + j;
-            layer->pfOutput[idx] = filler * ((pfInput[idx] - mean) / sqrtf(var + 1e-5f)) + bias;
+            layer->pfOutput[idx] = filler * (pfInput[idx] - mean) * rsqrt_approx(var + 1e-5f) + bias;
         }
     }
 }

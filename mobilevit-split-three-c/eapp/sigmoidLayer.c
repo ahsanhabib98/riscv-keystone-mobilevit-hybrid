@@ -1,5 +1,5 @@
 // sigmoidlayer.c
-#include "sigmoidlayer.h"
+#include "sigmoidLayer.h"
 #include <math.h>
 
 SigmoidLayer* SigmoidLayer_create(int nInputSize) {

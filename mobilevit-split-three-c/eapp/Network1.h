@@ -14,11 +14,11 @@
 #define AES_BLOCKLEN 16
 #endif
 
-/* OCall identifiers */
-#define OCALL_PRINT_STRING_12        1
-#define OCALL_PRINT_TIME             3
-#define OCALL_PRINT_BUFFER           6
-#define OCALL_WAIT_FOR_KEY_ACKNOWLEDGE 8
+// /* OCall identifiers */
+// #define OCALL_PRINT_STRING_12        1
+// #define OCALL_PRINT_TIME             3
+// #define OCALL_PRINT_BUFFER           6
+// #define OCALL_WAIT_FOR_KEY_ACKNOWLEDGE 8
 
 /**
  * Main network structure: handles data reading and layered inference.

@@ -68,7 +68,7 @@ int main(void) {
 
     // Encrypt the key_data with host's RSA key
     int key_len = sizeof(key_data) / sizeof(key_data[0]);
-    int *encrypted_key = encrypt(key_data, key_len, public_key.e, public_key.n);
+    int *encrypted_key = encrypt_bytes(key_data, key_len, public_key.e, public_key.n);
 
     // Package encrypted key for host acknowledgement
     struct KeyParameters {

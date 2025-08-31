@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "crypto.h"      /* for remove_padding */
 #include "aes.h"         /* for struct AES_ctx */
-#include "network3.h"    /* C interface for Network3_create, Network3_forward, etc. */
+#include "Network3.h"    /* C interface for Network3_create, Network3_forward, etc. */
 
 /**
  * Returns 1.0 if any pfPred[i]≥0.5 and pnLab[i]==1 among nclass, else 0.0.
